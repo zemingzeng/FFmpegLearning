@@ -25,7 +25,7 @@ android {
     //配合cmakelist引入多个动态库，但也可不配置这个，但需要再cmakelist配置so库具体路径，比较麻烦
     sourceSets {
         main {
-            jniLibs.srcDirs = ['src/main/cplusplus/libs']
+            jniLibs.srcDirs = ['src/main/cplusplus/libs/ffmpeg']
         }
     }
 

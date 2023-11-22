@@ -17,6 +17,7 @@ project("ffmpeglearning")
 #config include file path
 include_directories(${CMAKE_SOURCE_DIR}/include/log)
 include_directories(${CMAKE_SOURCE_DIR}/include/ffmpeg_learning)
+include_directories(${CMAKE_SOURCE_DIR}/include/ffmpeg)
 
 #config c++ source files path
 file(GLOB src_files
@@ -30,7 +31,7 @@ file(GLOB src_files
 #jniLibs.srcDirs = ['src/main/jni/libs']
 #}
 #}" in app build.gradle
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/libs/${ANDROID_ABI}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/libs/ffmpeg/${ANDROID_ABI}")
 
 #message( [STATUS|WARNING|AUTHOR_WARNING|FATAL_ERROR|SEND_ERROR] "message to display" ...)
 #(无) = 重要消息；
@@ -70,4 +71,7 @@ target_link_libraries( # Specifies the target library.
         ffmpeglearning
         # Links the target library to the log library
         # included in the NDK.
-        ${liblog})
+        ${liblog}
+        #ffmpeg libs
+        avcodec
+        )
