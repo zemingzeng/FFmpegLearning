@@ -1,12 +1,17 @@
 #include <jni.h>
 #include <string>
-#include "FFmpegLearning.h"
-#include "Log.h"
+#include "ffmpeg_learning/FFmpegLearning.h"
+#include "log/Log.h"
 
 extern "C" {
 #include "libavcodec/avcodec.h"
 #include "libavutil/ffversion.h"
 }
+
+#include "safe_queue/SafeQueue.h"
+#include "ffmpeg_thread/DemuxThread.h"
+
+using namespace mingzz;
 
 jstring FFmpegLearningActivity_stringFromJNI(JNIEnv *env, jobject jOject) {
     std::string info("FFmpegLearningActivity : \n");
@@ -24,5 +29,17 @@ jstring FFmpegLearningActivity_stringFromJNI(JNIEnv *env, jobject jOject) {
             std::to_string((avcodecVersionNumber >> 8) & 0xff) + "." +
             std::to_string((avcodecVersionNumber) & 0xff) + "." +
             ")";
+    //test queue
+    SafeQueue<int> queue;
+    queue.push(1);
+    queue.push(2);
+    LOGD("queue size-->%d", queue.size());
+    queue.abort();
+    //test demux thread
+    DemuxThread *demuxThread = new DemuxThread();
+    demuxThread->init("xxx/xxx/xxx.mp4");
+    demuxThread->start();
+    demuxThread->join();
+    delete demuxThread;
     return env->NewStringUTF(info.c_str());
 }

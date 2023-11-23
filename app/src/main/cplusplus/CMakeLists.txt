@@ -15,14 +15,17 @@ project("ffmpeglearning")
 # Gradle automatically packages shared libraries with your APK.
 
 #config include file path
-include_directories(${CMAKE_SOURCE_DIR}/include/log)
-include_directories(${CMAKE_SOURCE_DIR}/include/ffmpeg_learning)
-include_directories(${CMAKE_SOURCE_DIR}/include/ffmpeg)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include/ffmpeg_lib)
+include_directories(${CMAKE_SOURCE_DIR}/src/common/template_impl) #模板声明和实现文件分开
+include_directories(${CMAKE_SOURCE_DIR}/include/common)
 
 #config c++ source files path
 file(GLOB src_files
         ${CMAKE_SOURCE_DIR}/src/dynamic_register/*.cpp
         ${CMAKE_SOURCE_DIR}/src/ffmpeg_learning/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/common/thread/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/ffmpeg_thread/*.cpp
         )
 
 #config libs path
@@ -42,6 +45,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/libs/ffmpeg/${ANDR
 #FATAL_ERROR = CMake 错误, 终止所有处理过程；
 message(CMAKE_SOURCE_DIR---->${CMAKE_SOURCE_DIR})
 message(ANDROID_ABI---->${ANDROID_ABI})
+message(src files---->${src_files})
 
 
 add_library( # Sets the name of the library.
@@ -49,7 +53,8 @@ add_library( # Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
-        ${src_files})
+        ${src_files}
+        )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

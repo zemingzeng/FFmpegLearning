@@ -1,7 +1,7 @@
 #include <jni.h>
 #include <string>
-#include "Log.h"
-#include "FFmpegLearning.h"
+#include "log/Log.h"
+#include "ffmpeg_learning/FFmpegLearning.h"
 
 /***********************************************************************************************************
  * register native methods

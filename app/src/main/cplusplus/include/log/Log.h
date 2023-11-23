@@ -18,6 +18,8 @@
 
 #define NATIVE_LOG_DEBUG true
 
+namespace mingzz {
+
 #define LOGI(...) \
 if (NATIVE_LOG_DEBUG)        \
 __android_log_print(ANDROID_LOG_INFO,"mingzz__jni",__VA_ARGS__)
@@ -34,4 +36,5 @@ __android_log_print(ANDROID_LOG_WARN,"mingzz__jni",__VA_ARGS__)
 if(NATIVE_LOG_DEBUG)         \
 __android_log_print(ANDROID_LOG_ERROR,"mingzz__jni",__VA_ARGS__)
 
+}
 #endif
