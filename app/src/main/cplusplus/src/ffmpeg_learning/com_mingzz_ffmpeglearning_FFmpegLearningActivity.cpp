@@ -29,17 +29,30 @@ jstring FFmpegLearningActivity_stringFromJNI(JNIEnv *env, jobject jOject) {
             std::to_string((avcodecVersionNumber >> 8) & 0xff) + "." +
             std::to_string((avcodecVersionNumber) & 0xff) + "." +
             ")";
-    //test queue
-    SafeQueue<int> queue;
-    queue.push(1);
-    queue.push(2);
-    LOGD("queue size-->%d", queue.size());
-    queue.abort();
-    //test demux thread
+//    //test queue
+//    SafeQueue<int> queue;
+//    queue.push(1);
+//    queue.push(2);
+//    LOGD("queue size-->%d", queue.size());
+//    queue.abort();
+//    //test demux thread
+//    DemuxThread *demuxThread = new DemuxThread();
+//    demuxThread->init("xxx/xxx/xxx.mp4");
+//    demuxThread->start();
+//    demuxThread->join();
+//    delete demuxThread;
+    return env->NewStringUTF(info.c_str());
+}
+
+void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstring url){
+
+    const char *videoPath = env->GetStringUTFChars(url, nullptr);
+
     DemuxThread *demuxThread = new DemuxThread();
-    demuxThread->init("xxx/xxx/xxx.mp4");
+    demuxThread->init(videoPath);
     demuxThread->start();
     demuxThread->join();
     delete demuxThread;
-    return env->NewStringUTF(info.c_str());
+
+    env->ReleaseStringUTFChars(url, videoPath);
 }

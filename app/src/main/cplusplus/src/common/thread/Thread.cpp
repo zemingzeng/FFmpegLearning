@@ -11,6 +11,9 @@ Thread::Thread() : mpThread(nullptr) {
 }
 
 Thread::~Thread() {
+    if (THREAD_DEBUG_ON)
+        LOGD("Thread::~Thread()!");
+    stop();
 }
 
 int Thread::start() {

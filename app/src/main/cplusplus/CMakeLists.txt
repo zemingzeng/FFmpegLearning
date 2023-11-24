@@ -79,4 +79,6 @@ target_link_libraries( # Specifies the target library.
         ${liblog}
         #ffmpeg libs
         avcodec
+        avutil
+        avformat
         )

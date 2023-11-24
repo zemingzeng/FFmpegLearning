@@ -28,6 +28,7 @@ static const char *classPathName_1 = "com/mingzz/ffmpeglearning/FFmpegLearningAc
  */
 static JNINativeMethod methods_1[] = {
         {"stringFromJNI", "(III)Ljava/lang/String;", (void *)FFmpegLearningActivity_stringFromJNI},
+        {"ffmpegLearningStart", "(Ljava/lang/String;)V", (void *)FFmpegLearningActivity_ffmpegLearningStart},
 };
 
 /**

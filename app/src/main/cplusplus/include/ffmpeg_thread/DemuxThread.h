@@ -3,7 +3,12 @@
 
 #include "thread/Thread.h"
 
+extern "C" {
+#include "libavformat/avformat.h"
+};
+
 namespace mingzz {
+
     class DemuxThread : public Thread {
     public:
         DemuxThread();
@@ -23,7 +28,7 @@ namespace mingzz {
         std::string mUrl;
         // AVPacketQueue *mVQueue; // video packet queue
         // AVPacketQueue *mAQueue; // audio packet queue
-        // AVFormatContext* mAVFContext;
+        AVFormatContext *mAVFContext;
         int mAudioIndex;
         int mVideoIndex;
     };
