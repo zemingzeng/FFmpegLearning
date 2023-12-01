@@ -26,6 +26,7 @@ file(GLOB src_files
         ${CMAKE_SOURCE_DIR}/src/ffmpeg_learning/*.cpp
         ${CMAKE_SOURCE_DIR}/src/common/thread/*.cpp
         ${CMAKE_SOURCE_DIR}/src/ffmpeg_thread/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/ffmpeg_queue/*.cpp
         )
 
 #config libs path

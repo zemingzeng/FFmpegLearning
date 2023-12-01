@@ -20,6 +20,7 @@ int Thread::start() {
     if (THREAD_DEBUG_ON)
         LOGD("Thread::start()!");
     mpThread = new std::thread(&Thread::run, this); // new完，thread就自动启动了
+                                                    // 子类调用到这时会指定对应的虚表里面的函数指针
     if (!mpThread) {
         LOGE("new std::thread error!");
         return -1;

@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/video"
         android:supportsRtl="true"
-        android:theme="@style/Theme.FFmpegLearning"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
         <activity
             android:name=".FFmpegLearningActivity"

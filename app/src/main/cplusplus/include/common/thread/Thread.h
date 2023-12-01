@@ -2,6 +2,7 @@
 #define THREAD_H
 
 #include <thread>
+#include "log/Log.h"
 
 namespace mingzz {
 
