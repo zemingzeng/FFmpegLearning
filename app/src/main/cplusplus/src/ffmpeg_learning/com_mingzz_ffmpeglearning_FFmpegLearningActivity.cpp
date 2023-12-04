@@ -8,8 +8,9 @@ extern "C" {
 #include "libavutil/ffversion.h"
 }
 
-#include "safe_queue/SafeQueue.h"
+//#include "safe_queue/SafeQueue.h"
 #include "ffmpeg_thread/DemuxThread.h"
+#include "ffmpeg_queue/AVPacketQueue.h"
 
 using namespace mingzz;
 
@@ -48,7 +49,9 @@ void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstri
 
     const char *videoPath = env->GetStringUTFChars(url, nullptr);
 
-    DemuxThread *demuxThread = new DemuxThread();
+    AVPacketQueue* audioPQueue = new AVPacketQueue();
+    AVPacketQueue* videoPQueue = new AVPacketQueue();
+    DemuxThread *demuxThread = new DemuxThread(audioPQueue,videoPQueue);
     demuxThread->init(videoPath);
     demuxThread->start();
     demuxThread->join();

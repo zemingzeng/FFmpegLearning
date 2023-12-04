@@ -21,19 +21,19 @@ using namespace mingzz;
 
 template<typename T>
 SafeQueue<T>::SafeQueue() : mAbort(0) {
-    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T>::SafeQueue()!");
+    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T> : SafeQueue!");
 }
 
 template<typename T>
 SafeQueue<T>::~SafeQueue() {
-    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T>::~SafeQueue()!");
+    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T> ~SafeQueue!");
 }
 
 template<typename T>
 void SafeQueue<T>::abort() {
     //std::lock_guard <std::mutex> lock(mMutex); // 获取锁
     //不加锁可能需要马上起到影响
-    IF_SAFEQUEUE_DEBUG_ON  LOGD("SafeQueue::abort()!");
+    IF_SAFEQUEUE_DEBUG_ON  LOGD("SafeQueue abort!");
     mAbort = 1;
     mCondition.notify_all();
 }
@@ -44,7 +44,7 @@ int SafeQueue<T>::size() {
     if (1 == mAbort) {
         return -1;
     }
-    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T>::size()!");
+    //IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T> size()!");
     return mQueue.size();
 }
 
@@ -52,12 +52,12 @@ template<typename T>
 int SafeQueue<T>::push(T t) {
     std::lock_guard <std::mutex> lock(mMutex); // 获取锁
     if (1 == mAbort) {
-        LOGE("SafeQueue already abort can not push!");
+        LOGE("SafeQueue<T> push : already abort can not push!");
         return -1;
     }
     mQueue.push(t);
     mCondition.notify_one(); // 尝试唤醒 wait
-    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T>::push(T t)!");
+    //IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T> push!");
     return 0;
 }
 
@@ -71,13 +71,13 @@ int SafeQueue<T>::front(T &t) {
         return -1;
     }
     t = mQueue.front();
-    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T>::front(T &t)!");
+    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T> front : success!");
     return 0;
 }
 
 template<typename T>
 int SafeQueue<T>::pop(T &t, int timeOut /*milliseconds*/) {
-    std::lock_guard <std::mutex> lock(mMutex);
+    std::unique_lock <std::mutex> lock(mMutex);
     bool ret = true;
     if (mQueue.empty() && 1 != mAbort) {
         // 等待push
@@ -100,7 +100,7 @@ int SafeQueue<T>::pop(T &t, int timeOut /*milliseconds*/) {
     // 头元素从队列中移除
     mQueue.pop();
 
-    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T>::pop(T &t, int timeOut /*milliseconds*/)!");
+    IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue<T> pop : success!");
 
     return 0;
 }

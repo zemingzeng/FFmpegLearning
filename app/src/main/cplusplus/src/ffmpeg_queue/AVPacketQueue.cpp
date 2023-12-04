@@ -1,6 +1,10 @@
 #include "ffmpeg_queue/AVPacketQueue.h"
 #include "log/Log.h"
 
+extern "C"{
+    #include "libavcodec/codec.h"
+}
+
 #define AVPACKETQUEUE_DEBUG_ON true
 
 #define IF_AVPACKTQUEUE_DEBUG_ON if( \
@@ -17,11 +21,12 @@ AVPacketQueue::~AVPacketQueue(){
     //FIX ME : 需要完善
     while(true) {
          AVPacket* tmpPacket = nullptr;
-         if(mQueue.pop(tmpPacket,1)){
-             LOGE("~AVPacketQueue queue pop : error !");
+         int ret = mQueue.pop(tmpPacket,1);
+         if(0!=ret){
+             LOGE("~AVPacketQueue queue pop : error ret->%d!",ret);
              break;
          }
-         av_packet_free(tmpPacket);
+         av_packet_free(&tmpPacket);
     }
 }
 
@@ -67,7 +72,7 @@ AVPacket* AVPacketQueue::pop(int timeOut){
 int AVPacketQueue::size(){
     int size = mQueue.size();
 
-    IF_AVPACKTQUEUE_DEBUG_ON LOGD("AVPacketQueue size : size->%d!",size);
+    //IF_AVPACKTQUEUE_DEBUG_ON LOGD("AVPacketQueue size : size->%d!",size);
 
     return size;
 }
