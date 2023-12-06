@@ -1,3 +1,14 @@
+/**
+ * @file DynamicRegisterFunction.cpp
+ * @author your name (zemingzeng@126.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-11-17
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include <jni.h>
 #include <string>
 #include "log/Log.h"

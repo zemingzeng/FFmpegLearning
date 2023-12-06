@@ -13,7 +13,7 @@
 
 using namespace mingzz;
 
-#define SAFEQUEUE_DEBUG_ON true
+#define SAFEQUEUE_DEBUG_ON false
 
 #define IF_SAFEQUEUE_DEBUG_ON  if( \
                      SAFEQUEUE_DEBUG_ON   \

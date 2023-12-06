@@ -1,3 +1,14 @@
+/**
+ * @file AVPacketQueue.cpp
+ * @author your name (zemingzeng@126.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-11-17
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include "ffmpeg_queue/AVPacketQueue.h"
 #include "log/Log.h"
 
@@ -41,7 +52,7 @@ int AVPacketQueue::push(AVPacket* packet){
 
     //finally must be freed using av_packet_free()
     AVPacket* tmpPacket = av_packet_alloc();
-    // Move every field in src to dst and reset src.
+    // just copy and reset src packet
     av_packet_move_ref(tmpPacket,packet);
     // queue中保存的是拷贝份
     return mQueue.push(tmpPacket);
@@ -49,6 +60,10 @@ int AVPacketQueue::push(AVPacket* packet){
 
 AVPacket* AVPacketQueue::pop(int timeOut){
     IF_AVPACKTQUEUE_DEBUG_ON LOGD("AVPacketQueue pop : timeOut->%d!",timeOut);
+
+    if(0 > timeOut){
+    LOGE("AVFrameQueue pop : error->timeout < 0");
+    }
 
     AVPacket* tmpPacket = nullptr;
     if(mQueue.pop(tmpPacket,timeOut)){

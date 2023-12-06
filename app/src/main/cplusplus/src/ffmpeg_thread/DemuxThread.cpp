@@ -1,3 +1,14 @@
+/**
+ * @file DemuxThread.cpp
+ * @author your name (zemingzeng@126.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-11-17
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include "ffmpeg_thread/DemuxThread.h"
 #include "log/Log.h"
 #include <iostream>
@@ -73,14 +84,19 @@ void DemuxThread::run() {
 
     int ret = 0;
     AVPacket pkt;
-    while (!mAbort) {
+    while (1!=mAbort) {
 
         if (!mAVFContext) {
             LOGE("DemuxThread run : mAVFContext is null");
             break;
         }
 
-        ret = av_read_frame(mAVFContext, &pkt); //读取av packet
+        //读取av packet
+        //把avbuffer赋值给pkt（之前以为会copy一份赋值好buffer数据的packet）,
+        //然后初始化refcount为1，
+        //然后通过move_ref copy（转移）到queue中，所以在这不需要unref
+        //当从queue中取出packet，用完时在free(unref)
+        ret = av_read_frame(mAVFContext, &pkt);
         if (ret < 0) {
             av_strerror(ret, mAVErrorInfo, sizeof(mAVErrorInfo)); // 把错误码转化成string
             LOGE("DemuxThread run : mAVErrorInfo->%s", mAVErrorInfo);
@@ -91,7 +107,10 @@ void DemuxThread::run() {
             if(mVPQueue){
                 IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put video pkt, mVPQueue size->%d", mVPQueue->size());
 
-                mVPQueue->push(&pkt);
+                ret = mVPQueue->push(&pkt);
+                if(0 != ret){
+                   LOGE(" DemuxThread run : video packet push error!");
+                }
 
             } else {
                 LOGE("DemuxThread run : mVPQueue is nullptr");
@@ -102,7 +121,10 @@ void DemuxThread::run() {
             if(mAPQueue){
                 IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put into audio pkt, mAPQueue size->%d", mAPQueue->size());
 
-                mAPQueue->push(&pkt);
+                ret = mAPQueue->push(&pkt);
+                if(0 != ret){
+                   LOGE(" DemuxThread run : audio packet push error!");
+                }
 
             } else {
                 LOGE("DemuxThread run : mAPQueue is nullptr");
@@ -146,7 +168,8 @@ int DemuxThread::init(const char *url) {
         return ret;
     }
 
-    av_dump_format(mAVFContext, 0, mUrl.c_str(), 0);
+    //android platform print nothing!
+    //av_dump_format(mAVFContext, 0, mUrl.c_str(), 0);
 
     mVideoIndex = av_find_best_stream(mAVFContext, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
     mAudioIndex = av_find_best_stream(mAVFContext, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);

@@ -1,3 +1,14 @@
+/**
+ * @file AVPacketQueue.h
+ * @author your name (zemingzeng@126.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-11-17
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #ifndef  AVPACKETQUEUE_H
 #define  AVPACKETQUEUE_H
 
@@ -12,20 +23,23 @@ using namespace mingzz;
 class AVPacketQueue{
 
 public:
+
     AVPacketQueue();
+
     ~AVPacketQueue();
 
     void abort();
 
+    int size();
+
     int push(AVPacket* t);
 
-    AVPacket* pop(int timeOut = 0);
+    AVPacket* pop(const int timeOut = 10);
 
     AVPacket* front();
 
-    int size();
-
 private:
+
     SafeQueue<AVPacket*> mQueue;
 
 };

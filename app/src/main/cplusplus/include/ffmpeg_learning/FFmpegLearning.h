@@ -1,3 +1,14 @@
+/**
+ * @file FFmpegLearning.h
+ * @author your name (zemingzeng@126.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-11-17
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #ifndef FFMPEG_LEARNING_H
 #define FFMPEG_LEARNING_H
 
