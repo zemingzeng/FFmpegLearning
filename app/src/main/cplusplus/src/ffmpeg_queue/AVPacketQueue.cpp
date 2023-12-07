@@ -16,6 +16,8 @@ extern "C"{
     #include "libavcodec/codec.h"
 }
 
+using namespace mingzz;
+
 #define AVPACKETQUEUE_DEBUG_ON true
 
 #define IF_AVPACKTQUEUE_DEBUG_ON if( \
@@ -29,20 +31,28 @@ AVPacketQueue::AVPacketQueue(){
 AVPacketQueue::~AVPacketQueue(){
     IF_AVPACKTQUEUE_DEBUG_ON LOGD("~AVPacketQueue()!");
 
-    //FIX ME : 需要完善
+    abort();
+}
+
+void AVPacketQueue::release(){
+    IF_AVPACKTQUEUE_DEBUG_ON LOGD("AVPacketQueue release!");
+
     while(true) {
-         AVPacket* tmpPacket = nullptr;
-         int ret = mQueue.pop(tmpPacket,1);
-         if(0!=ret){
-             LOGE("~AVPacketQueue queue pop : error ret->%d!",ret);
-             break;
-         }
-         av_packet_free(&tmpPacket);
+        AVPacket* tmpPacket = nullptr;
+        int ret = mQueue.pop(tmpPacket,1);
+        if(0!=ret){
+            LOGW("AVPacketQueue queue pop : may fail or no item to get ret->%d!",ret);
+            break;
+        }
+        av_packet_free(&tmpPacket);
     }
+
 }
 
 void AVPacketQueue::abort(){
     IF_AVPACKTQUEUE_DEBUG_ON LOGD("AVPacketQueue abort!");
+
+    release();
 
     mQueue.abort();
 }

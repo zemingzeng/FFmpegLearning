@@ -40,9 +40,9 @@ namespace mingzz {
         int mAbort;
         char mAVErrorInfo[256];
         std::string mUrl;
-        AVPacketQueue *mVPQueue; // video packet queue
-        AVPacketQueue *mAPQueue; // audio packet queue
-        AVFormatContext *mAVFContext;
+        AVPacketQueue *mpVPQueue; // video packet queue
+        AVPacketQueue *mpAPQueue; // audio packet queue
+        AVFormatContext *mpAVFContext;
         int mAudioIndex;
         int mVideoIndex;
     };

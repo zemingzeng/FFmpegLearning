@@ -16,20 +16,26 @@ using namespace mingzz;
 
 #define THREAD_DEBUG_ON true
 
+#define IF_THREAD_DEBUG_ON if( \
+                 THREAD_DEBUG_ON \
+                 )
+
+#define THREAD_DEBUG_ON true
+
 Thread::Thread() : mpThread(nullptr) {
-    if (THREAD_DEBUG_ON)
-        LOGD("Thread::Thread()!");
+    IF_THREAD_DEBUG_ON LOGD("Thread::Thread()!");
+
 }
 
 Thread::~Thread() {
-    if (THREAD_DEBUG_ON)
-        LOGD("Thread::~Thread()!");
+    IF_THREAD_DEBUG_ON LOGD("Thread::~Thread()!");
+
     stop();
 }
 
 int Thread::start() {
-    if (THREAD_DEBUG_ON)
-        LOGD("Thread::start()!");
+    IF_THREAD_DEBUG_ON  LOGD("Thread::start()!");
+
     mpThread = new std::thread(&Thread::run, this); // new完，thread就自动启动了
                                                     // 子类调用到这时会指定对应的虚表里面的函数指针
     if (!mpThread) {
@@ -40,11 +46,10 @@ int Thread::start() {
 }
 
 int Thread::stop() {
-    if (THREAD_DEBUG_ON)
-        LOGD("Thread::stop()!");
+    IF_THREAD_DEBUG_ON LOGD("Thread::stop()!");
+
     if (mpThread) {
-        if (THREAD_DEBUG_ON)
-            LOGD("Thread before delete t!");
+        IF_THREAD_DEBUG_ON LOGD("Thread before delete t!");
         // 等待任务完成然后才delete,
         // 会阻塞此线程直到mpThread任务处理完成然后返回
         join();
@@ -53,12 +58,12 @@ int Thread::stop() {
             LOGD("Thread after delete t!");
         mpThread = nullptr;
     }
+
     return 0;
 }
 
 void Thread::join() {
-    if (THREAD_DEBUG_ON)
-        LOGD("Thread::join()!");
+    IF_THREAD_DEBUG_ON LOGD("Thread::join()!");
     if (mpThread) {
         if (mpThread->joinable())
             mpThread->join();
@@ -66,8 +71,7 @@ void Thread::join() {
 }
 
 void Thread::detach() {
-    if (THREAD_DEBUG_ON)
-        LOGD("Thread::detach()!");
+    IF_THREAD_DEBUG_ON LOGD("Thread::detach()!");
     if (mpThread) {
         if (mpThread->joinable())
             mpThread->detach();

@@ -12,6 +12,8 @@
 #include "ffmpeg_queue/AVFrameQueue.h"
 #include "log/Log.h"
 
+using namespace mingzz;
+
 #define AVFRAMEQUEUE_DEBUG_ON true
 
 #define IF_AVFRAMEQUEUE_DEBUG_ON if( \
@@ -24,10 +26,29 @@ AVFrameQueue::AVFrameQueue(){
 
 AVFrameQueue::~AVFrameQueue(){
     IF_AVFRAMEQUEUE_DEBUG_ON LOGD("~AVFrameQueue()!");
+
+    abort();
+}
+
+void AVFrameQueue::release(){
+    IF_AVFRAMEQUEUE_DEBUG_ON LOGD("AVFrameQueue release!");
+
+    while(true) {
+        AVFrame* tmpFrame = nullptr;
+        int ret = mQueue.pop(tmpPacket,1);
+        if(0!=ret){
+            LOGW("AVFrameQueue queue pop : may fail or no item to get ret->%d!",ret);
+            break;
+        }
+        av_frame_free(&tmpFrame);
+    }
+
 }
 
 void AVFrameQueue::abort(){
     IF_AVFRAMEQUEUE_DEBUG_ON LOGD("AVFrameQueue abort");
+
+    release();
 
     mQueue.abort();
 }

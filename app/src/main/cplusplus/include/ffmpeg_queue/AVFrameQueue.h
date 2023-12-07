@@ -18,6 +18,8 @@ extern "C" {
 #include "libavutil/frame.h"
 };
 
+namespace mingzz {
+
 class AVFrameQueue {
 
 public:
@@ -40,6 +42,10 @@ private:
 
     SafeQueue<AVFrame*> mQueue;
 
+    void release();
+
 };
+
+}
 
 #endif

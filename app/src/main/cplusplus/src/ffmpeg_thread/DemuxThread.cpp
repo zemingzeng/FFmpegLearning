@@ -40,8 +40,8 @@ DemuxThread::DemuxThread() : mAbort(0),
 }
 
 DemuxThread::DemuxThread(AVPacketQueue* audioPQueue,AVPacketQueue*videoPQueue) : mAbort(0),
-                                          mAPQueue(audioPQueue),
-                                          mVPQueue(videoPQueue),
+                                          mpAPQueue(audioPQueue),
+                                          mpVPQueue(videoPQueue),
                                           mAVFContext(nullptr),
                                           mAudioIndex(-1),
                                           mVideoIndex(-1)
@@ -50,29 +50,26 @@ DemuxThread::DemuxThread(AVPacketQueue* audioPQueue,AVPacketQueue*videoPQueue) :
 
     memset(mAVErrorInfo, 0, sizeof(mAVErrorInfo));
 
-
 }
 
 DemuxThread::~DemuxThread() {
     IF_DEMUXTHREAD_DEBUG_ON LOGD("DemuxThread ~DemuxThread()!");
+
     stop();
+
+    if (mAVFContext) {
+        avformat_close_input(&mAVFContext);
+    }
+
 }
 
 void DemuxThread::stop() {
     IF_DEMUXTHREAD_DEBUG_ON LOGD("DemuxThread::stop()!");
-    Thread::stop();
+
     mAbort = 1;
-    if (mAVFContext) {
-        avformat_close_input(&mAVFContext);
-    }
-    if(mVPQueue){
-        delete mVPQueue;
-        mVPQueue = nullptr;
-    }
-    if(mAPQueue){
-        delete mAPQueue;
-        mAPQueue = nullptr;
-    }
+
+    Thread::stop();
+
 }
 
 void DemuxThread::run() {
@@ -86,7 +83,7 @@ void DemuxThread::run() {
     AVPacket pkt;
     while (1!=mAbort) {
 
-        if (!mAVFContext) {
+        if (!mpAVFContext) {
             LOGE("DemuxThread run : mAVFContext is null");
             break;
         }
@@ -96,7 +93,7 @@ void DemuxThread::run() {
         //然后初始化refcount为1，
         //然后通过move_ref copy（转移）到queue中，所以在这不需要unref
         //当从queue中取出packet，用完时在free(unref)
-        ret = av_read_frame(mAVFContext, &pkt);
+        ret = av_read_frame(mpAVFContext, &pkt);
         if (ret < 0) {
             av_strerror(ret, mAVErrorInfo, sizeof(mAVErrorInfo)); // 把错误码转化成string
             LOGE("DemuxThread run : mAVErrorInfo->%s", mAVErrorInfo);
@@ -104,10 +101,10 @@ void DemuxThread::run() {
         }
         if (mVideoIndex == pkt.stream_index) {
             // put into video pkt queue
-            if(mVPQueue){
+            if(mpVPQueue){
                 IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put video pkt, mVPQueue size->%d", mVPQueue->size());
 
-                ret = mVPQueue->push(&pkt);
+                ret = mpVPQueue->push(&pkt);
                 if(0 != ret){
                    LOGE(" DemuxThread run : video packet push error!");
                 }
@@ -118,10 +115,10 @@ void DemuxThread::run() {
 
         } else if (mAudioIndex == pkt.stream_index) {
             // put into audio pkt queue
-            if(mAPQueue){
+            if(mpAPQueue){
                 IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put into audio pkt, mAPQueue size->%d", mAPQueue->size());
 
-                ret = mAPQueue->push(&pkt);
+                ret = mpAPQueue->push(&pkt);
                 if(0 != ret){
                    LOGE(" DemuxThread run : audio packet push error!");
                 }

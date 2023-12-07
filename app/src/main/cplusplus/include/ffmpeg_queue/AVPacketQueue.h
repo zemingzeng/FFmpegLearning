@@ -18,7 +18,7 @@ extern "C"{
 #include "libavcodec/packet.h"
 };
 
-using namespace mingzz;
+namespace mingzz {
 
 class AVPacketQueue{
 
@@ -42,7 +42,10 @@ private:
 
     SafeQueue<AVPacket*> mQueue;
 
+    void release();
+
 };
 
+}
 
 #endif

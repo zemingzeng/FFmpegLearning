@@ -51,6 +51,7 @@ message(src files---->${src_files})
 
 add_library( # Sets the name of the library.
         ffmpeglearning
+
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).

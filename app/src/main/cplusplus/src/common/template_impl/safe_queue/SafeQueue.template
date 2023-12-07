@@ -31,9 +31,9 @@ SafeQueue<T>::~SafeQueue() {
 
 template<typename T>
 void SafeQueue<T>::abort() {
-    //std::lock_guard <std::mutex> lock(mMutex); // 获取锁
-    //不加锁可能需要马上起到影响
     IF_SAFEQUEUE_DEBUG_ON  LOGD("SafeQueue abort!");
+
+    //std::lock_guard <std::mutex> lock(mMutex); // 获取锁
     mAbort = 1;
     mCondition.notify_all();
 }
