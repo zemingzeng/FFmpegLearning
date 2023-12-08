@@ -28,9 +28,9 @@ using namespace mingzz;
                  )
 
 DemuxThread::DemuxThread() : mAbort(0),
-                             mAPQueue(nullptr),
-                             mVPQueue(nullptr),
-                             mAVFContext(nullptr),
+                             mpAPQueue(nullptr),
+                             mpVPQueue(nullptr),
+                             mpAVFContext(nullptr),
                              mAudioIndex(-1),
                              mVideoIndex(-1)
 {
@@ -42,7 +42,7 @@ DemuxThread::DemuxThread() : mAbort(0),
 DemuxThread::DemuxThread(AVPacketQueue* audioPQueue,AVPacketQueue*videoPQueue) : mAbort(0),
                                           mpAPQueue(audioPQueue),
                                           mpVPQueue(videoPQueue),
-                                          mAVFContext(nullptr),
+                                          mpAVFContext(nullptr),
                                           mAudioIndex(-1),
                                           mVideoIndex(-1)
 {
@@ -57,8 +57,8 @@ DemuxThread::~DemuxThread() {
 
     stop();
 
-    if (mAVFContext) {
-        avformat_close_input(&mAVFContext);
+    if (mpAVFContext) {
+        avformat_close_input(&mpAVFContext);
     }
 
 }
@@ -102,7 +102,8 @@ void DemuxThread::run() {
         if (mVideoIndex == pkt.stream_index) {
             // put into video pkt queue
             if(mpVPQueue){
-                IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put video pkt, mVPQueue size->%d", mVPQueue->size());
+                IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put video pkt, mVPQueue size->%d",
+                                              mpVPQueue->size());
 
                 ret = mpVPQueue->push(&pkt);
                 if(0 != ret){
@@ -116,7 +117,7 @@ void DemuxThread::run() {
         } else if (mAudioIndex == pkt.stream_index) {
             // put into audio pkt queue
             if(mpAPQueue){
-                IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put into audio pkt, mAPQueue size->%d", mAPQueue->size());
+                IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put into audio pkt, mAPQueue size->%d", mpAPQueue->size());
 
                 ret = mpAPQueue->push(&pkt);
                 if(0 != ret){
@@ -145,20 +146,20 @@ int DemuxThread::init(const char *url) {
 
     mUrl = url;
 
-    mAVFContext = avformat_alloc_context();
-    if (!mAVFContext) {
+    mpAVFContext = avformat_alloc_context();
+    if (!mpAVFContext) {
         LOGE("DemuxThread init : mAVFContext is null");
         return -1;
     }
 
-    int ret = avformat_open_input(&mAVFContext, mUrl.c_str(), nullptr, nullptr);
+    int ret = avformat_open_input(&mpAVFContext, mUrl.c_str(), nullptr, nullptr);
     if (ret < 0) {
         av_strerror(ret, mAVErrorInfo, sizeof(mAVErrorInfo)); // 把错误码转化成string
         LOGE("DemuxThread init : avformat_open_input mAVErrorInfo --> %s", mAVErrorInfo);
         return ret;
     }
 
-    ret = avformat_find_stream_info(mAVFContext, NULL);
+    ret = avformat_find_stream_info(mpAVFContext, NULL);
     if (ret < 0) {
         av_strerror(ret, mAVErrorInfo, sizeof(mAVErrorInfo)); // 把错误码转化成string
         LOGE("DemuxThread init : avformat_find_stream_info mAVErrorInfo --> %s", mAVErrorInfo);
@@ -168,15 +169,16 @@ int DemuxThread::init(const char *url) {
     //android platform print nothing!
     //av_dump_format(mAVFContext, 0, mUrl.c_str(), 0);
 
-    mVideoIndex = av_find_best_stream(mAVFContext, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
-    mAudioIndex = av_find_best_stream(mAVFContext, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+    mVideoIndex = av_find_best_stream(mpAVFContext, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+    mAudioIndex = av_find_best_stream(mpAVFContext, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
     if (mVideoIndex < 0 || mAudioIndex < 0) {
         // audio or video stream data not found!!
         LOGE("DemuxThread init : audio or video stream data not found!!");
         return -1;
     }
 
-    IF_DEMUXTHREAD_DEBUG_ON LOGD("DemuxThread init : mVideoIndex->%d , mAudioIndex->%d", mVideoIndex, mAudioIndex);
+    IF_DEMUXTHREAD_DEBUG_ON LOGD("DemuxThread init : finish (mVideoIndex->%d , mAudioIndex->%d)",
+                                  mVideoIndex, mAudioIndex);
 
     return 0;
 }

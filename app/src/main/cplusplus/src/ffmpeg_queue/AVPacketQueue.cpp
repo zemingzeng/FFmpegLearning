@@ -41,7 +41,7 @@ void AVPacketQueue::release(){
         AVPacket* tmpPacket = nullptr;
         int ret = mQueue.pop(tmpPacket,1);
         if(0!=ret){
-            LOGW("AVPacketQueue queue pop : may fail or no item to get ret->%d!",ret);
+            LOGW("AVPacketQueue queue pop : may fail!,queue size->%d!",mQueue.size());
             break;
         }
         av_packet_free(&tmpPacket);

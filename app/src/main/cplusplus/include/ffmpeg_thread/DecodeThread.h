@@ -30,9 +30,9 @@ public:
 
     ~DecodeThread();
 
-    void stop();
+    int stop();
 
-    int init();
+    int init(AVCodecParameters*);
 
 private:
 
@@ -41,6 +41,10 @@ private:
     AVFrameQueue* mpAVFQueue;
 
     AVPacketQueue* mpAVPQueue;
+
+    AVCodecContext* mpAVCodecContext;
+
+    char mAVErrorInfo[256];
 
 };
 

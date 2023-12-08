@@ -35,7 +35,7 @@ void AVFrameQueue::release(){
 
     while(true) {
         AVFrame* tmpFrame = nullptr;
-        int ret = mQueue.pop(tmpPacket,1);
+        int ret = mQueue.pop(tmpFrame,1);
         if(0!=ret){
             LOGW("AVFrameQueue queue pop : may fail or no item to get ret->%d!",ret);
             break;

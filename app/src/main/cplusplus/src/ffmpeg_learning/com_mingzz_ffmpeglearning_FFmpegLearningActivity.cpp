@@ -56,6 +56,8 @@ void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstri
     demuxThread->start();
     demuxThread->join();
     delete demuxThread;
+    delete audioPQueue;
+    delete videoPQueue;
 
     env->ReleaseStringUTFChars(url, videoPath);
 }
