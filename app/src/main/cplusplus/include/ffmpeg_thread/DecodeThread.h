@@ -46,6 +46,8 @@ private:
 
     char mAVErrorInfo[256];
 
+    int mAbort;
+
 };
 
 }

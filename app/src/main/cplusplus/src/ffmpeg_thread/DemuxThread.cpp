@@ -60,7 +60,6 @@ DemuxThread::~DemuxThread() {
     if (mpAVFContext) {
         avformat_close_input(&mpAVFContext);
     }
-
 }
 
 void DemuxThread::stop() {

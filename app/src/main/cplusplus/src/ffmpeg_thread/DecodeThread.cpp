@@ -27,7 +27,8 @@ using namespace mingzz;
 DecodeThread::DecodeThread(AVPacketQueue*pktQueue,AVFrameQueue*frameQueue) :
                                           mpAVFQueue(frameQueue),
                                           mpAVPQueue(pktQueue),
-                                          mpAVCodecContext(nullptr)
+                                          mpAVCodecContext(nullptr),
+                                          mAbort(0)
 
 {
     IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread(*,*)!");
@@ -38,17 +39,75 @@ DecodeThread::DecodeThread(AVPacketQueue*pktQueue,AVFrameQueue*frameQueue) :
 DecodeThread::~DecodeThread(){
     IF_DECODETHREAD_DEBUG_ON LOGD("~DecodeThread()!");
 
+    stop();
 
+    if(mpAVCodecContext){
+        avcodec_free_context(&mpAVCodecContext);
+    }
 }
 
 int DecodeThread::stop(){
     IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread stop!");
 
+    Thread::stop();
+
     return 0;
 }
 
 void DecodeThread::run(){
-    IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread stop!");
+    IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread run!");
+    //reference
+    //https://ffmpeg.org/doxygen/trunk/group__lavc__decoding.html#ga11e6542c4e66d3028668788a1a74217c
+
+    if(!mpAVPQueue || !mpAVCodecContext || !mpAVFQueue){
+        LOGE("DecodeThread run : mpAVPQueue or mpAVCodecContext or mpAVFQueue is nullptr");
+        break;
+    }
+
+    AVFrame* pFrame =av_frame_alloc();
+
+    while(1 != mAbort){
+         AVPacket* pPacket = mpAVPQueue->pop(10);
+
+         if(!pPacket){
+             LOGW("DecodeThread run : pPacket(is nullptr) does not get!");
+             continue;
+         }
+
+        //Ownership of the packet remains with the caller
+        //should free by yourself
+         int ret = avcodec_send_packet(mpAVCodecContext, pPacket);
+         av_packet_free(&pPacket);
+         if(ret < 0){
+             av_strerror(ret, mAVErrorInfo, sizeof(mAVErrorInfo));
+             LOGE("DecodeThread run : avcodec_send_packet error->%s",mAVErrorInfo);
+             break;
+         }
+
+         //读取解码好的frame
+         while(true){
+             ret = avcodec_receive_frame(mpAVCodecContext, pFrame);
+             if(0 == ret){
+                 mpAVFQueue->push(pFrame);
+                 continue;
+             } else {
+                 av_strerror(ret, mAVErrorInfo, sizeof(mAVErrorInfo));
+                 if(AVERROR(EAGAIN) == ret){
+                     //output is not available in this state - user must try to send new input
+                     LOGW("DecodeThread run : avcodec_receive_frame error->%s",mAVErrorInfo);
+                     break;
+                 } else {
+                     //error happen!
+                     mAbort = 1;
+                     LOGE("DecodeThread run : avcodec_receive_frame error->%s",mAVErrorInfo);
+                     break;
+                 }
+             }
+         }
+
+    }
+
+    IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread run : finish!");
 
 }
 

@@ -36,12 +36,16 @@ Thread::~Thread() {
 int Thread::start() {
     IF_THREAD_DEBUG_ON  LOGD("Thread::start()!");
 
-    mpThread = new std::thread(&Thread::run, this); // new完，thread就自动启动了
-                                                    // 子类调用到这时会指定对应的虚表里面的函数指针
+    if(!mpThread)
+        // new完，thread就自动启动了
+        // 子类调用到这时会指定对应的虚表里面的函数指针
+        mpThread = new std::thread(&Thread::run, this);
+
     if (!mpThread) {
         LOGE("new std::thread error!");
         return -1;
     }
+
     return 0;
 }
 
@@ -54,8 +58,7 @@ int Thread::stop() {
         // 会阻塞此线程直到mpThread任务处理完成然后返回
         join();
         delete mpThread;
-        if (THREAD_DEBUG_ON)
-            LOGD("Thread after delete t!");
+        IF_THREAD_DEBUG_ON LOGD("Thread after delete t!");
         mpThread = nullptr;
     }
 
