@@ -181,3 +181,17 @@ int DemuxThread::init(const char *url) {
 
     return 0;
 }
+
+AVCodecParameters*  DemuxThread::getAudioCodecParams(){
+    AVCodecParameters* pParams = nullptr;
+    AVStream* pStream = mpAVFContext->streams[mAudioIndex];
+    pParams = pStream->codecpar;
+    return pParams;
+ }
+
+AVCodecParameters*  DemuxThread::getVideoCodecParams(){
+    AVCodecParameters* pParams = nullptr;
+    AVStream* pStream = mpAVFContext->streams[mVideoIndex];
+    pParams = pStream->codecpar;
+    return pParams;
+}

@@ -43,30 +43,28 @@ void AVFrameQueue::release(){
         av_frame_free(&tmpFrame);
     }
 
+    mQueue.abort();
 }
 
 void AVFrameQueue::abort(){
     IF_AVFRAMEQUEUE_DEBUG_ON LOGD("AVFrameQueue abort");
 
     release();
-
-    mQueue.abort();
 }
 
 int AVFrameQueue::size(){
 
     int size = mQueue.size();
-    IF_AVFRAMEQUEUE_DEBUG_ON LOGD("AVFrameQueue  size : ->%d",size);
+    //IF_AVFRAMEQUEUE_DEBUG_ON LOGD("AVFrameQueue  size : ->%d",size);
 
     return size;
 }
 
 int AVFrameQueue::push(AVFrame* frame){
-    IF_AVFRAMEQUEUE_DEBUG_ON LOGD("AVFrameQueue push : ->%p" ,frame);
-
     AVFrame* tmpFrame = av_frame_alloc();
     av_frame_move_ref(tmpFrame,frame);
 
+    IF_AVFRAMEQUEUE_DEBUG_ON LOGD("AVFrameQueue push : ->%p" ,frame);
     return mQueue.push(tmpFrame);
 }
 

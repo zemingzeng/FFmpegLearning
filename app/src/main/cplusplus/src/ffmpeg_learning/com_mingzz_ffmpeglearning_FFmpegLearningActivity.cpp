@@ -2,6 +2,7 @@
 #include <string>
 #include "ffmpeg_learning/FFmpegLearning.h"
 #include "log/Log.h"
+#include <thread>
 
 extern "C" {
 #include "libavcodec/avcodec.h"
@@ -10,7 +11,9 @@ extern "C" {
 
 //#include "safe_queue/SafeQueue.h"
 #include "ffmpeg_thread/DemuxThread.h"
+#include "ffmpeg_thread/DecodeThread.h"
 #include "ffmpeg_queue/AVPacketQueue.h"
+#include "ffmpeg_queue/AVFrameQueue.h"
 
 using namespace mingzz;
 
@@ -46,18 +49,50 @@ jstring FFmpegLearningActivity_stringFromJNI(JNIEnv *env, jobject jOject) {
 }
 
 void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstring url){
+    LOGD("FFmpegLearningActivity_ffmpegLearningStart : begin");
 
     const char *videoPath = env->GetStringUTFChars(url, nullptr);
 
-    AVPacketQueue* audioPQueue = new AVPacketQueue();
-    AVPacketQueue* videoPQueue = new AVPacketQueue();
-    DemuxThread *demuxThread = new DemuxThread(audioPQueue,videoPQueue);
-    demuxThread->init(videoPath);
-    demuxThread->start();
-    demuxThread->join();
+    AVPacketQueue audioPQueue ;
+    AVPacketQueue videoPQueue;
+
+    AVFrameQueue audioFQueue;
+    AVFrameQueue videoFQueue;
+
+    DemuxThread *demuxThread = new DemuxThread(&audioPQueue, &videoPQueue);
+    DecodeThread* audioDecodeThread = new DecodeThread(&audioPQueue, &audioFQueue);
+
+    int ret = demuxThread->init(videoPath);
+     if(0 > ret){
+        LOGE("FFmpegLearningActivity_ffmpegLearningStart : demuxThread init error->%d",ret);
+        return;
+    }
+
+    ret = audioDecodeThread->init(demuxThread->getAudioCodecParams());
+    if(0 > ret){
+        LOGE("FFmpegLearningActivity_ffmpegLearningStart : audioDecodeThread init error->%d",ret);
+        return;
+    }
+
+    ret = demuxThread->start();
+    if(0 > ret){
+        LOGE("FFmpegLearningActivity_ffmpegLearningStart : demuxThread start error->%d",ret);
+        return;
+    }
+
+    ret = audioDecodeThread->start();
+    if(0 > ret){
+        LOGE("FFmpegLearningActivity_ffmpegLearningStart : audioDecodeThread start error->%d",ret);
+        return;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    demuxThread->stop();
     delete demuxThread;
-    delete audioPQueue;
-    delete videoPQueue;
+    audioDecodeThread->stop();
+    delete audioDecodeThread;
 
     env->ReleaseStringUTFChars(url, videoPath);
+    LOGD("FFmpegLearningActivity_ffmpegLearningStart : end");
 }

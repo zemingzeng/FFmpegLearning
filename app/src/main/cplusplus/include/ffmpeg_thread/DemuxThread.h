@@ -17,21 +17,23 @@
 
 extern "C" {
 #include "libavformat/avformat.h"
+#include "libavcodec/avcodec.h"
 };
 
 namespace mingzz {
 
     class DemuxThread : public Thread {
+
     public:
         DemuxThread();
-
         DemuxThread(AVPacketQueue*,AVPacketQueue*);
-
         ~DemuxThread();
-
         int init(const char *);
-
         void stop();
+
+    public:
+        AVCodecParameters*  getAudioCodecParams();
+        AVCodecParameters*  getVideoCodecParams();
 
     private:
         void run() override;

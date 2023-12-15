@@ -49,6 +49,8 @@ DecodeThread::~DecodeThread(){
 int DecodeThread::stop(){
     IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread stop!");
 
+    mAbort = 1;
+
     Thread::stop();
 
     return 0;
@@ -61,18 +63,22 @@ void DecodeThread::run(){
 
     if(!mpAVPQueue || !mpAVCodecContext || !mpAVFQueue){
         LOGE("DecodeThread run : mpAVPQueue or mpAVCodecContext or mpAVFQueue is nullptr");
-        break;
+        return ;
     }
 
     AVFrame* pFrame =av_frame_alloc();
 
+    int nullPacketGetCount = 0;
     while(1 != mAbort){
          AVPacket* pPacket = mpAVPQueue->pop(10);
 
          if(!pPacket){
+             ++nullPacketGetCount;
              LOGW("DecodeThread run : pPacket(is nullptr) does not get!");
+             if(5 < nullPacketGetCount) break; //get null packet more than 5 times then stop!
              continue;
          }
+         nullPacketGetCount = 0;
 
         //Ownership of the packet remains with the caller
         //should free by yourself
@@ -87,7 +93,9 @@ void DecodeThread::run(){
          //读取解码好的frame
          while(true){
              ret = avcodec_receive_frame(mpAVCodecContext, pFrame);
+
              if(0 == ret){
+                 IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread run : get a frame, frame size->%d",mpAVFQueue->size());
                  mpAVFQueue->push(pFrame);
                  continue;
              } else {
@@ -97,7 +105,7 @@ void DecodeThread::run(){
                      LOGW("DecodeThread run : avcodec_receive_frame error->%s",mAVErrorInfo);
                      break;
                  } else {
-                     //error happen!
+                     //may error happen ! stop the thread!
                      mAbort = 1;
                      LOGE("DecodeThread run : avcodec_receive_frame error->%s",mAVErrorInfo);
                      break;
@@ -112,7 +120,7 @@ void DecodeThread::run(){
 }
 
 int DecodeThread::init(AVCodecParameters* avCodecParams){
-    IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread stop!");
+    IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread init!");
 
     if(!avCodecParams){
         LOGE("DecodeThread init : avCodecParams is nullptr");

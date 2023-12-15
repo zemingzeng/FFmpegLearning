@@ -47,14 +47,13 @@ void AVPacketQueue::release(){
         av_packet_free(&tmpPacket);
     }
 
+    mQueue.abort();
 }
 
 void AVPacketQueue::abort(){
     IF_AVPACKTQUEUE_DEBUG_ON LOGD("AVPacketQueue abort!");
 
     release();
-
-    mQueue.abort();
 }
 
 int AVPacketQueue::push(AVPacket* packet){
@@ -72,7 +71,7 @@ AVPacket* AVPacketQueue::pop(int timeOut){
     IF_AVPACKTQUEUE_DEBUG_ON LOGD("AVPacketQueue pop : timeOut->%d!",timeOut);
 
     if(0 > timeOut){
-    LOGE("AVFrameQueue pop : error->timeout < 0");
+        LOGE("AVFrameQueue pop : error->timeout < 0");
     }
 
     AVPacket* tmpPacket = nullptr;

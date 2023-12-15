@@ -14,7 +14,7 @@
 
 using namespace mingzz;
 
-#define THREAD_DEBUG_ON true
+#define THREAD_DEBUG_ON false
 
 #define IF_THREAD_DEBUG_ON if( \
                  THREAD_DEBUG_ON \
