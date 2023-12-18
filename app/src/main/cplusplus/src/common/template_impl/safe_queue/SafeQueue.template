@@ -90,8 +90,7 @@ int SafeQueue<T>::pop(T &t, int timeOut /*milliseconds*/) {
 
     //睡眠后，超时被唤醒或者设置了abort为1
     if (1 == mAbort || !ret) {
-        IF_SAFEQUEUE_DEBUG_ON LOGD("SafeQueue pop : wait timeout or abort!!");
-
+        IF_SAFEQUEUE_DEBUG_ON LOGE("SafeQueue pop : wait timeout or abort!!");
         return -1;
     }
 

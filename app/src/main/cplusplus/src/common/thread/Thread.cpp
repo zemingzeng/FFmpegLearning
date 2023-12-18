@@ -20,8 +20,6 @@ using namespace mingzz;
                  THREAD_DEBUG_ON \
                  )
 
-#define THREAD_DEBUG_ON true
-
 Thread::Thread() : mpThread(nullptr) {
     IF_THREAD_DEBUG_ON LOGD("Thread::Thread()!");
 

@@ -47,7 +47,7 @@ DecodeThread::~DecodeThread(){
 }
 
 int DecodeThread::stop(){
-    IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread stop!");
+    IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread stop : mAbort->%d addr->%p", mAbort, this);
 
     mAbort = 1;
 
@@ -70,8 +70,15 @@ void DecodeThread::run(){
 
     int nullPacketGetCount = 0;
     while(1 != mAbort){
-         AVPacket* pPacket = mpAVPQueue->pop(10);
 
+        //wait for frame consumed!
+        if(10 < mpAVFQueue->size()){
+            IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread run : wait for frame consumed! addr->%p", this);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+
+         AVPacket* pPacket = mpAVPQueue->pop(10);
          if(!pPacket){
              ++nullPacketGetCount;
              LOGW("DecodeThread run : pPacket(is nullptr) does not get!");

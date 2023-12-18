@@ -75,8 +75,8 @@ AVPacket* AVPacketQueue::pop(int timeOut){
     }
 
     AVPacket* tmpPacket = nullptr;
-    if(mQueue.pop(tmpPacket,timeOut)){
-        LOGE("AVPacketQueue pop : error happen!");
+    if(0 != mQueue.pop(tmpPacket,timeOut)){
+        LOGE("AVPacketQueue pop : error happen mQueue size->%d", mQueue.size());
     }
 
     return tmpPacket;

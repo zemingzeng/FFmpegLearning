@@ -82,6 +82,13 @@ void DemuxThread::run() {
     AVPacket pkt;
     while (1!=mAbort) {
 
+        //wait for av packet consumed
+        if(100 < mpVPQueue->size() || 100 < mpAPQueue->size()){
+            IF_DEMUXTHREAD_DEBUG_ON LOGD("DemuxThread run : wait for av packet consumed!");
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+
         if (!mpAVFContext) {
             LOGE("DemuxThread run : mAVFContext is null");
             break;
@@ -116,7 +123,7 @@ void DemuxThread::run() {
         } else if (mAudioIndex == pkt.stream_index) {
             // put into audio pkt queue
             if(mpAPQueue){
-                IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put into audio pkt, mAPQueue size->%d", mpAPQueue->size());
+                IF_DEMUXTHREAD_DEBUG_ON  LOGD("DemuxThread run : put audio pkt, mAPQueue size->%d", mpAPQueue->size());
 
                 ret = mpAPQueue->push(&pkt);
                 if(0 != ret){

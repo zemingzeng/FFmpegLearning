@@ -61,6 +61,7 @@ void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstri
 
     DemuxThread *demuxThread = new DemuxThread(&audioPQueue, &videoPQueue);
     DecodeThread* audioDecodeThread = new DecodeThread(&audioPQueue, &audioFQueue);
+    DecodeThread* videoDecodeThread = new DecodeThread(&videoPQueue, &videoFQueue);
 
     int ret = demuxThread->init(videoPath);
      if(0 > ret){
@@ -71,6 +72,12 @@ void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstri
     ret = audioDecodeThread->init(demuxThread->getAudioCodecParams());
     if(0 > ret){
         LOGE("FFmpegLearningActivity_ffmpegLearningStart : audioDecodeThread init error->%d",ret);
+        return;
+    }
+
+    ret = videoDecodeThread->init(demuxThread->getVideoCodecParams());
+    if(0 > ret){
+        LOGE("FFmpegLearningActivity_ffmpegLearningStart : videoDecodeThread init error->%d",ret);
         return;
     }
 
@@ -86,12 +93,22 @@ void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstri
         return;
     }
 
+    ret = videoDecodeThread->start();
+    if(0 > ret){
+        LOGE("FFmpegLearningActivity_ffmpegLearningStart : videoDecodeThread start error->%d",ret);
+        return;
+    }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     demuxThread->stop();
     delete demuxThread;
+
     audioDecodeThread->stop();
     delete audioDecodeThread;
+
+    videoDecodeThread->stop();
+    delete videoDecodeThread;
 
     env->ReleaseStringUTFChars(url, videoPath);
     LOGD("FFmpegLearningActivity_ffmpegLearningStart : end");
