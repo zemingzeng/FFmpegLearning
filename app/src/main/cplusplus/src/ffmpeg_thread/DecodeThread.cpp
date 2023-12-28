@@ -72,7 +72,7 @@ void DecodeThread::run(){
     while(1 != mAbort){
 
         //wait for frame consumed!
-        if(10 < mpAVFQueue->size()){
+        if(5 < mpAVFQueue->size()){
             IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread run : wait for frame consumed! addr->%p", this);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
@@ -81,8 +81,8 @@ void DecodeThread::run(){
          AVPacket* pPacket = mpAVPQueue->pop(10);
          if(!pPacket){
              ++nullPacketGetCount;
-             LOGW("DecodeThread run : pPacket(is nullptr) does not get!");
-             if(5 < nullPacketGetCount) break; //get null packet more than 5 times then stop!
+             LOGW("DecodeThread run : pPacket(is nullptr) does not get! packet queue size->%d",mpAVPQueue->size());
+             //if(5 < nullPacketGetCount) break; //get null packet more than 5 times then stop!
              continue;
          }
          nullPacketGetCount = 0;
@@ -119,8 +119,10 @@ void DecodeThread::run(){
                  }
              }
          }
-
     }
+
+    //we alloc the frame and we should free it
+    av_frame_free(&pFrame);
 
     IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread run : finish!");
 
@@ -168,6 +170,58 @@ int DecodeThread::init(AVCodecParameters* avCodecParams){
         return -1;
     }
 
+    //LOGD("DecodeThread init : sampleRate->%d,sampleFormat->%d,nb_channels->%d",
+           //sampleRate, sampleFormat, avChannelLayout.nb_channels);
+
     IF_DECODETHREAD_DEBUG_ON LOGD("DecodeThread int : finish");
     return 0;
+}
+
+//only for video
+int DecodeThread::getVideoHeightFromCodecContext(){
+    if(!mpAVCodecContext){
+        LOGE("DecodeThread getVideoHeightFromCodecContext : mpAVCodecContext = null");
+        return -1;
+    }
+    //audio try to get then return invalid
+    if(AVMEDIA_TYPE_AUDIO == mpAVCodecContext->codec_type){
+        return -1;
+    }
+    return mpAVCodecContext->height;
+}
+
+int DecodeThread::getVideoWidthFromCodecContext(){
+    if(!mpAVCodecContext){
+        LOGE("DecodeThread getVideoWidthFromCodecContext : mpAVCodecContext = null");
+        return -1;
+    }
+    //audio try to get then return invalid
+    if(AVMEDIA_TYPE_AUDIO == mpAVCodecContext->codec_type){
+        return -1;
+    }
+    return mpAVCodecContext->width;
+}
+
+enum AVPixelFormat DecodeThread::getVideoPixFormatFromCodecContext(){
+    if(!mpAVCodecContext){
+        LOGE("DecodeThread getVideoPixFormatFromCodecContext : mpAVCodecContext = null");
+        return AV_PIX_FMT_NONE;
+    }
+    if(AVMEDIA_TYPE_AUDIO == mpAVCodecContext->codec_type){
+        return AV_PIX_FMT_NONE;
+    }
+    return mpAVCodecContext->pix_fmt;
+}
+
+//only for audio
+int DecodeThread::getAudioSampleRateFormCodecContext(){
+    return mpAVCodecContext->sample_rate;
+}
+
+enum AVSampleFormat DecodeThread::getAudioSampleFormatFormCodecContext(){
+    return mpAVCodecContext->sample_fmt;
+}
+
+AVChannelLayout DecodeThread::getAudioChannelLayoutFormCodecContext(){
+    return mpAVCodecContext->ch_layout;
 }

@@ -34,6 +34,7 @@ namespace mingzz {
     public:
         AVCodecParameters*  getAudioCodecParams();
         AVCodecParameters*  getVideoCodecParams();
+        AVRational  getAVStreamTimeBase();
 
     private:
         void run() override;

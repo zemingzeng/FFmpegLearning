@@ -34,6 +34,16 @@ public:
 
     int init(AVCodecParameters*);
 
+    //only for video stream
+    int getVideoHeightFromCodecContext();
+    int getVideoWidthFromCodecContext();
+    enum AVPixelFormat getVideoPixFormatFromCodecContext();
+    //only for audio stream
+    int getAudioSampleRateFormCodecContext();
+    enum AVSampleFormat getAudioSampleFormatFormCodecContext();
+    AVChannelLayout getAudioChannelLayoutFormCodecContext();
+
+
 private:
 
     void run() override;

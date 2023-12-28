@@ -9,18 +9,13 @@ package com.mingzz.ffmpeglearning;
  * @Copyright Copyright (c) 2023 Zengzeming All rights reserved.
  */
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
-import java.io.File;
-
 public class FFmpegLearningActivity extends AppCompatActivity {
-
     private final String TAG = "mingzz__FFmpegLearning";
-    private  String videoName = "fox.mp4";
-    private  String videoPath = "../../../.mp4";
 
     static {
         System.loadLibrary("ffmpeglearning");
@@ -30,20 +25,17 @@ public class FFmpegLearningActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.ffmpeglearning_activity_layout);
+        init();
+    }
 
-        setContentView(R.layout.activity_main);
-
-        // Example of a call to a native method
+    private void init() {
         TextView tv = findViewById(R.id.sample_text);
         tv.setText(stringFromJNI(11, 22, 33));
-
-        videoPath=getCacheDir().getAbsolutePath()+ File.separator+"fox.mp4";
-        Log.i(TAG, "onCreate video url->"+videoPath);
-
-        ffmpegLearningStart(videoPath);
-
+        findViewById(R.id.bt).setOnClickListener(v -> {
+            startActivity(new Intent(this, AVPlayActivity.class));
+        });
     }
 
     public native String stringFromJNI(int a, int b, int c);
-    public native void ffmpegLearningStart(String url);
 }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/sv"
+        android:layout_width="match_parent"
+        android:layout_height="1080px" />
+
+    <Button
+        android:id="@+id/bt_start"
+        android:textAllCaps="false"
+        android:layout_marginBottom="50dp"
+        android:layout_gravity="bottom"
+        android:text="start to play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/bt_stop"
+        android:textAllCaps="false"
+        android:layout_marginBottom="50dp"
+        android:layout_gravity="right|bottom"
+        android:text="stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</FrameLayout>

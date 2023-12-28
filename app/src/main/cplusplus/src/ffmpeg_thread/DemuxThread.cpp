@@ -83,7 +83,9 @@ void DemuxThread::run() {
     while (1!=mAbort) {
 
         //wait for av packet consumed
-        if(100 < mpVPQueue->size() || 100 < mpAPQueue->size()){
+        //if(100 < mpVPQueue->size()){
+        //if(100 < mpAPQueue->size()){
+        if(10 < mpVPQueue->size() || 20 < mpAPQueue->size()){
             IF_DEMUXTHREAD_DEBUG_ON LOGD("DemuxThread run : wait for av packet consumed!");
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
@@ -98,7 +100,7 @@ void DemuxThread::run() {
         //把avbuffer赋值给pkt（之前以为会copy一份赋值好buffer数据的packet）,
         //然后初始化refcount为1，
         //然后通过move_ref copy（转移）到queue中，所以在这不需要unref
-        //当从queue中取出packet，用完时在free(unref)
+        //当从queue中取出packet，用完时在free(会先unref后free)
         ret = av_read_frame(mpAVFContext, &pkt);
         if (ret < 0) {
             av_strerror(ret, mAVErrorInfo, sizeof(mAVErrorInfo)); // 把错误码转化成string
@@ -138,7 +140,7 @@ void DemuxThread::run() {
             //其他
             IF_DEMUXTHREAD_DEBUG_ON   LOGD("DemuxThread run : other stream index");
 
-            av_packet_unref(&pkt); // 释放
+            av_packet_unref(&pkt); // 不需要这个buf,解除buf的引用
         }
 
     }
@@ -183,6 +185,13 @@ int DemuxThread::init(const char *url) {
         return -1;
     }
 
+    AVStream* videoStream = mpAVFContext->streams[mVideoIndex];
+    AVStream* audioStream = mpAVFContext->streams[mVideoIndex];
+    LOGD("DemuxThread init : videoStream time_base(num->%d,den->%d) , audioStream time_base(num->%d,den->%d)",
+         videoStream->time_base.num, videoStream->time_base.den,
+         audioStream->time_base.num, audioStream->time_base.den);
+
+
     IF_DEMUXTHREAD_DEBUG_ON LOGD("DemuxThread init : finish (mVideoIndex->%d , mAudioIndex->%d)",
                                   mVideoIndex, mAudioIndex);
 
@@ -201,4 +210,12 @@ AVCodecParameters*  DemuxThread::getVideoCodecParams(){
     AVStream* pStream = mpAVFContext->streams[mVideoIndex];
     pParams = pStream->codecpar;
     return pParams;
+}
+
+AVRational  DemuxThread::getAVStreamTimeBase(){
+    //suppose audio video time_base is the same
+    if(!mpAVFContext && -1 == mVideoIndex){
+        LOGE("DemuxThread getAVStreamTimeBase : invalid status!");
+    }
+    return mpAVFContext->streams[mVideoIndex]->time_base;
 }

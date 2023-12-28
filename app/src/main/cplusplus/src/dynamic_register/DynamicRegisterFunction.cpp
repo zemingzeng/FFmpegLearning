@@ -13,6 +13,7 @@
 #include <string>
 #include "log/Log.h"
 #include "ffmpeg_learning/FFmpegLearning.h"
+#include "ffmpeg_learning/AVPlayActivity.h"
 
 /***********************************************************************************************************
  * register native methods
@@ -25,6 +26,7 @@
  * static const char *classPathName = "com/mingzz__/h26x/usta/rtmp/RTMPActivity";
  */
 static const char *classPathName_1 = "com/mingzz/ffmpeglearning/FFmpegLearningActivity";
+static const char *classPathName_2 = "com/mingzz/ffmpeglearning/AVPlayActivity";
 
 /**
  * example:
@@ -39,7 +41,10 @@ static const char *classPathName_1 = "com/mingzz/ffmpeglearning/FFmpegLearningAc
  */
 static JNINativeMethod methods_1[] = {
         {"stringFromJNI", "(III)Ljava/lang/String;", (void *)FFmpegLearningActivity_stringFromJNI},
-        {"ffmpegLearningStart", "(Ljava/lang/String;)V", (void *)FFmpegLearningActivity_ffmpegLearningStart},
+};
+static JNINativeMethod methods_2[] = {
+        {"avStartToPlay", "(Ljava/lang/String;Landroid/view/Surface;)V", (void *)AVPlayActivity_startToPlay},
+        {"avStop", "()V", (void *)AVPlayActivity_stop},
 };
 
 /**
@@ -65,6 +70,12 @@ registerNativeMethods(JNIEnv *envVar, const char *inClassName, JNINativeMethod *
 static int registerNatives(JNIEnv *env) {
     if (!registerNativeMethods(env, classPathName_1, methods_1,
                                sizeof(methods_1) / sizeof(methods_1[0]))) {
+        LOGE("registerNatives fail : %s", classPathName_1);
+        return JNI_FALSE;
+    }
+    if (!registerNativeMethods(env, classPathName_2, methods_2,
+                               sizeof(methods_2) / sizeof(methods_2[0]))) {
+        LOGE("registerNatives fail : %s", classPathName_2);
         return JNI_FALSE;
     }
     return JNI_TRUE;

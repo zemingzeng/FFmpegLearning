@@ -16,6 +16,4 @@
 
 jstring FFmpegLearningActivity_stringFromJNI(JNIEnv *env,jobject jOject);
 
-void FFmpegLearningActivity_ffmpegLearningStart(JNIEnv *env,jobject jOject,jstring url);
-
 #endif
